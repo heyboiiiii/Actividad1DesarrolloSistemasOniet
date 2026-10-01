@@ -1,0 +1,26 @@
+[
+  {
+    "CompaniaSeguro": "SeguroAndes",
+    "TotalFacturado": 59931008.67,
+    "TotalServicios": 9953,
+    "TotalCobertura": 46701698.94
+  },
+  {
+    "CompaniaSeguro": "ProtecSalud",
+    "TotalFacturado": 46974958.2,
+    "TotalServicios": 9708,
+    "TotalCobertura": 33767501.06
+  },
+  {
+    "CompaniaSeguro": "VidaFuturo",
+    "TotalFacturado": 50615978.19,
+    "TotalServicios": 9373,
+    "TotalCobertura": 33891637.18
+  },
+  {
+    "CompaniaSeguro": "SegurPlus",
+    "TotalFacturado": 64002993.86,
+    "TotalServicios": 9679,
+    "TotalCobertura": 46481064.13
+  }
+]

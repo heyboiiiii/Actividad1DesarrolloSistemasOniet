@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import Informe from './Informe.jsx'
 
 function App() {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState('');
+  const [informe, setInforme] = useState(null);
 
   // Capturar el archivo cuando el usuario lo selecciona
   const handleFileChange = (e) => {
@@ -35,6 +37,8 @@ function App() {
       if (response.ok) {
         setStatus(`¡Éxito! ${data.mensaje}`);
         console.log('Datos del servidor:', data.archivo);
+        setInforme(data.informe); // Guardar el informe generado
+        console.log(data.informe); // mostrar el informe generado en la consola
       } else {
         setStatus(`Error: ${data.error}`);
       }
@@ -46,9 +50,21 @@ function App() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 p-6">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-md">
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-md ">
         <h2 className="mb-4 text-xl font-bold text-slate-800">Subir Archivo al Servidor</h2>
         
+        <div class="flex gap-3 mb-4">
+  
+          <span class="inline-flex items-center rounded-full bg-gradient-to-r from-emerald-300 to-emerald-400 px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-white shadow-md shadow-green-500/30">
+            csv
+          </span>
+
+          
+          <span class="inline-flex items-center rounded-full bg-gradient-to-r from-amber-300 to-orange-400 px-4 py-1.5 text-sm font-bold uppercase tracking-wide text-white shadow-md shadow-orange-500/30">
+            json
+          </span>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input 
             type="file" 
@@ -69,7 +85,9 @@ function App() {
             {status}
           </p>
         )}
+        
       </div>
+      {informe && <Informe informe={informe} />}
     </div>
   );
 }

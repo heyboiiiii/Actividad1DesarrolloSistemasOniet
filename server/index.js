@@ -3,6 +3,7 @@ import multer from 'multer';
 import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
+import { generarInformes } from './utils.js';
 
 const app = express();
 const PORT = 4000;
@@ -34,55 +35,37 @@ app.post('/api/upload', upload.single('archivo'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No se subió ningún archivo.' });
   }
-  
-  // Responder al frontend con éxito y datos del archivo
-  res.status(200).json({
-    mensaje: '¡Archivo subido con éxito!',
-    archivo: req.file
-  });
 
-  // Leer el archivo JSON
-  const archivo = fs.readFileSync('./uploads/datos.json', 'utf8');
-  // Remove BOM if present
-  const limpio = archivo.replace(/^\uFEFF/, '');
-  const datos = JSON.parse(limpio);
-  
-  processData(datos);
+  try {
+    // 1. Leer el archivo subido
+    const archivo = fs.readFileSync('./uploads/datos.json', 'utf8');
+    const limpio = archivo.replace(/^\uFEFF/, ''); // quitar BOM
+    const datos = JSON.parse(limpio);
+
+    if (!Array.isArray(datos)) {
+      return res.status(400).json({ error: 'El JSON debe ser un arreglo.' });
+    }
+
+    // 2. Procesar y obtener el informe
+    //const companias = [...new Set(datos.map(d => d.CompaniaSeguro))];
+    const informe = generarInformes(datos);
+
+    // 3. Responder con todo (última operación)
+    return res.status(200).json({
+      mensaje: '¡Archivo subido con éxito!',
+      archivo: req.file,
+      informe,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json({
+      error: 'No se pudo procesar el archivo.',
+      detalle: err.message,
+    });
+  }
 });
 
 app.listen(PORT, () => {
   console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
 
-function processData(datos){
-  const companias = [...new Set(datos.map(d => d.CompaniaSeguro))];
-  console.log(companias);
-  generarInforme(datos);
-  console.log('Informe generado:', informe);
-}
-
-function generarInforme(datos, rutaSalida = './informe.json') {
-  // 1. Acumular totales por compañía
-  const totales = new Map();
-
-  for (const fila of datos) {
-    const compania = fila.CompaniaSeguro;
-
-    const valor = parseFloat(fila.ValorPorServicio) || 0;
-    const cantidad = parseInt(fila.CantidadServicios, 10) || 0;
-    const subtotal = valor * cantidad;
-
-    totales.set(compania, (totales.get(compania) || 0) + subtotal);
-  }
-
-  // 2. Convertir a arreglo con la estructura pedida
-  const informe = [...totales.entries()].map(([CompaniaSeguro, TotalFacturado]) => ({
-    CompaniaSeguro,
-    TotalFacturado: Number(TotalFacturado.toFixed(2)), // 2 decimales, como número
-  }));
-
-  // 3. Escribir el archivo
-  fs.writeFileSync(rutaSalida, JSON.stringify(informe, null, 2), 'utf8');
-
-  return informe;
-}
